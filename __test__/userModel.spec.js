@@ -31,3 +31,21 @@ describe('GET /api/users should return an array of users', () => {
         expect(result.body.users[0].username).toEqual('test1');
     })
 });
+
+describe('DELETE /api/users', () => {
+    it('should fail to delete the user if the incorrect password is given', async () => {
+        const result = await request(server).delete('/api/users').send({ username: "test1", password: "incorrect" });
+        expect(result.body.message).toEqual("incorrect password provided, you are not authorized to delete that user");
+    });
+    it('should successfully delete the user if the correct password is given', async () => {
+        const result = await request(server).delete('/api/users').send({ username: "test1", password: "password" });
+        expect(result.body.message).toEqual("successfully deleted username: test1");
+    })
+})
+
+describe('GET /api/users on empty database', () => {
+    it('should return an empty array after the only user in the database has been deleted', async () => {
+        const result = await request(server).get('/api/users');
+        expect(result.body.users).toEqual([]);
+    });
+});
